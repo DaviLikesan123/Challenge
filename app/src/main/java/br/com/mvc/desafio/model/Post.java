@@ -6,12 +6,17 @@ public class Post {
 
     private int userId;
 
-    private int id;
+    private Integer id;
 
     private String title;
     @SerializedName("body")
     private String text;
 
+    public Post(int userId,  String title, String text) {
+        this.userId = userId;
+        this.title = title;
+        this.text = text;
+    }
     public int getUserId() {
         return userId;
     }
@@ -39,13 +44,6 @@ public class Post {
     public void setTitle(String title) {this.title = title;}
 
     public void setText(String text) {
-        this.text = text;
-    }
-
-    public Post(int userId, int id, String title, String text) {
-        this.userId = userId;
-        this.id = id;
-        this.title = title;
         this.text = text;
     }
 }
