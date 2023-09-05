@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
     private void insertDataFromApi(String userId, String id, String title, String text) {
 
         try {
+            //Init database
             database = openOrCreateDatabase("crudapp", MODE_PRIVATE, null);
             String sql = "INSERT INTO Post (userId, id, title, text)" + "VALUES (?, ?, ?, ?)";
             SQLiteStatement stmt = database.compileStatement(sql);
