@@ -2,6 +2,7 @@ package br.com.mvc.desafio.view;
 
 import static br.com.mvc.desafio.BuildConfig.BASE_URL;
 
+import androidx.annotation.MainThread;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import br.com.mvc.desafio.R;
+import br.com.mvc.desafio.db.DBHelper;
 import br.com.mvc.desafio.model.Post;
 import br.com.mvc.desafio.retrofit.RetrofitInterface;
 import retrofit2.Call;
@@ -25,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
     private RetrofitInterface retrofitInterface;
 
+    private DBHelper dbHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
         textViewResult = findViewById(R.id.text_view_result);
 
+        //Retrofit Service
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -39,62 +44,12 @@ public class MainActivity extends AppCompatActivity {
 
         retrofitInterface = retrofit.create(RetrofitInterface.class);
 
-//        getPosts();
-//        createPost();
-//          updatePost();
-          delete();
+            //TODO Move to controller
+             getPosts();
+//           createPost();
+//           updatePost();
+//           delete();
 
-    }
-
-    private void delete() {
-
-        Call<Void> call = retrofitInterface.delete(5);
-        call.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                textViewResult.setText("Code: " + response.code());
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                textViewResult.setText(t.getMessage());
-            }
-        });
-    }
-
-    private void updatePost() {
-        Post post = new Post(12, null, "New Text");
-
-        Call<Post> call = retrofitInterface.putPost(5, post);
-
-        call.enqueue(new Callback<Post>() {
-            @Override
-            public void onResponse(Call<Post> call, Response<Post> response) {
-
-                if (!response.isSuccessful()) {
-                    textViewResult.setText("Code: " + response.code());
-                    return;
-                }
-
-                Post postResponse = response.body();
-
-                String content = "";
-                content += "CODE: " + response.code() + "\n";
-                content += "ID: " + postResponse.getId() + "\n";
-                content += "User ID: " + postResponse.getUserId() + "\n";
-                content += "Title: " + postResponse.getTitle() + "\n";
-                content += "Text: " + postResponse.getText() + "\n\n";
-
-                textViewResult.append(content);
-
-
-            }
-
-            @Override
-            public void onFailure(Call<Post> call, Throwable t) {
-                textViewResult.setText(t.getMessage());
-            }
-        });
     }
 
     private void getPosts() {
@@ -115,12 +70,18 @@ public class MainActivity extends AppCompatActivity {
 
                 List<Post> posts = response.body();
 
+                dbHelper = new DBHelper(MainActivity.this);
+
+                //TODO RecyclerView
                 for (Post post : posts) {
+
                     String content = "";
                     content += "ID: " + post.getId() + "\n";
                     content += "User ID: " + post.getUserId() + "\n";
                     content += "Title: " + post.getTitle() + "\n";
                     content += "Text: " + post.getText() + "\n\n";
+
+                    dbHelper.addRetrofitResponse(String.valueOf(post.getUserId()), post.getTitle(), post.getText());
 
                     textViewResult.append(content);
                 }
@@ -149,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Post postResponse = response.body();
 
+                    //TODO RecyclerView
                     String content = "";
                     content += "CODE: " + response.code() + "\n";
                     content += "ID: " + postResponse.getId() + "\n";
@@ -165,8 +127,55 @@ public class MainActivity extends AppCompatActivity {
             }
     });
 }
-            
+
+    private void updatePost() {
+        Post post = new Post(12, null, "New Text");
+
+        Call<Post> call = retrofitInterface.putPost(5, post);
+
+        call.enqueue(new Callback<Post>() {
+            @Override
+            public void onResponse(Call<Post> call, Response<Post> response) {
+
+                if (!response.isSuccessful()) {
+                    textViewResult.setText("Code: " + response.code());
+                    return;
+                }
+
+                Post postResponse = response.body();
 
 
+                //TODO RecyclerView
+                String content = "";
+                content += "CODE: " + response.code() + "\n";
+                content += "ID: " + postResponse.getId() + "\n";
+                content += "User ID: " + postResponse.getUserId() + "\n";
+                content += "Title: " + postResponse.getTitle() + "\n";
+                content += "Text: " + postResponse.getText() + "\n\n";
 
+                textViewResult.append(content);
+            }
+
+            @Override
+            public void onFailure(Call<Post> call, Throwable t) {
+                textViewResult.setText(t.getMessage());
+            }
+        });
+    }
+
+    private void delete() {
+
+        Call<Void> call = retrofitInterface.delete(5);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                textViewResult.setText("Code: " + response.code());
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                textViewResult.setText(t.getMessage());
+            }
+        });
+    }
 }

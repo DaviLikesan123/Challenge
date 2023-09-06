@@ -26,6 +26,8 @@ public interface RetrofitInterface {
 
     @DELETE("posts/{id}")
     Call<Void> delete(@Path("id")int id);
+
+
 }
 
 
